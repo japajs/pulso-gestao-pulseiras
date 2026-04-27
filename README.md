@@ -1,4 +1,5 @@
 Pulso – Gestão de Pulseiras
+
 Sistema web de controle de estoque de pulseiras com autenticação por senha.
 Desenvolvido com HTML, CSS e JavaScript puro.
 
