@@ -6,7 +6,7 @@ Desenvolvido com HTML, CSS, JavaScript e com auxilio de IA.
 Funcionalidades
 
 Cadastro e controle de estoque de pulseiras
-Autenticação por senha para acesso ao sistema.
+Autenticação por senha para acesso ao sistema. 
 
 Tecnologias
 
