@@ -6,7 +6,6 @@ Desenvolvido com HTML, CSS e JavaScript puro.
 Funcionalidades
 
 Cadastro e controle de estoque de pulseiras
-
 Autenticação por senha para acesso ao sistema
 
 Tecnologias
