@@ -1,0 +1,226 @@
+/* Animações suaves */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Utilitário para esconder elementos */
+.hidden-section {
+    display: none;
+}
+
+/* --- ESTILOS DE IMPRESSÃO --- */
+@media print {
+    /* Esconde tudo que não for a área de impressão */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Esconde elementos de navegação e interativos */
+    nav,
+    button,
+    input,
+    select,
+    .no-print {
+        display: none !important;
+    }
+
+    /* Mostra e posiciona a área de relatório */
+    #print-area,
+    #print-area * {
+        visibility: visible;
+    }
+
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important; /* Força exibição */
+        background: white;
+        color: black;
+    }
+
+    /* Remove sombras e fundos coloridos para economizar tinta */
+    .shadow-md,
+    .shadow-lg {
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+    }
+}
+
+/* --- ANIMAÇÕES DE UI --- */
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-8px);
+    }
+    75% {
+        transform: translateX(8px);
+    }
+}
+
+.shake {
+    animation: shake 0.3s ease-in-out;
+    border-color: #ef4444 !important; /* Vermelho (Tailwind red-500) */
+}
+
+/* Pulsação para alerta de estoque baixo */
+@keyframes pulse-warning {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+}
+
+.pulse-warning {
+    display: inline-block;
+    animation: pulse-warning 1.4s ease-in-out infinite;
+    color: #f59e0b; /* amber-500 */
+}
+
+/* Card de caixa — linha de detalhe (bruto/retirado) */
+.cash-detail-row {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.72rem;
+    color: #9ca3af;
+    margin-top: 0.15rem;
+}
+
+.cash-detail-row .withdrawn {
+    color: #f87171; /* red-400 */
+    font-weight: 600;
+}
+
+/* Seção de gráficos — altura fixa dos canvas */
+.chart-wrapper {
+    position: relative;
+    height: 220px;
+}
+
+/* --- RESPONSIVIDADE EXTRA --- */
+
+/* Navbar: encolhe o título em telas muito pequenas */
+@media (max-width: 380px) {
+    nav h1 {
+        font-size: 0.95rem;
+    }
+    nav .fa-ticket {
+        font-size: 1.1rem;
+    }
+}
+
+/* Tabela de funcionários: reduz padding e fonte em mobile */
+@media (max-width: 640px) {
+    #manager-table-body td,
+    #history-table-body td {
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    /* Cabeçalho das tabelas menor em mobile */
+    table thead th {
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Modal: garante que não ultrapasse a tela em altura */
+@media (max-width: 640px) {
+    .modal-inner {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Gráficos: reduz altura em telas muito pequenas */
+@media (max-width: 480px) {
+    .chart-wrapper {
+        height: 180px;
+    }
+}
+
+/* --- TOAST NOTIFICATIONS --- */
+
+.toast-item {
+    opacity: 0;
+    transform: translateX(110%);
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+}
+
+.toast-item.toast-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-item.toast-hiding {
+    opacity: 0;
+    transform: translateX(110%);
+}
+
+/* --- MODO ESCURO (DARK MODE) --- */
+body.dark-mode {
+    background-color: #111827; /* gray-900 */
+    color: #f3f4f6; /* gray-100 */
+}
+
+/* Inverter cartões brancos para cinza escuro */
+body.dark-mode .bg-white {
+    background-color: #1f2937; /* gray-800 */
+    color: #e5e7eb;
+    border-color: #374151;
+}
+
+/* Ajustar fundos cinzas claros */
+body.dark-mode .bg-gray-50,
+body.dark-mode .bg-gray-100 {
+    background-color: #374151; /* gray-700 */
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+/* Ajustar Inputs e Selects */
+body.dark-mode input,
+body.dark-mode select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: white;
+}
+
+/* Ajustar textos que eram cinza escuro */
+body.dark-mode .text-gray-500,
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-700,
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-900 {
+    color: #d1d5db; /* gray-300 */
+}
+
+/* Garantir que botões coloridos mantenham texto branco */
+body.dark-mode button[class*="text-white"] {
+    color: white !important;
+}

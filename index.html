@@ -1,0 +1,1313 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pulso - Gestão de Pulseiras</title>
+
+        <!-- Tailwind CSS via CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- FontAwesome para Ícones -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+
+        <!-- Nosso CSS Personalizado -->
+        <link rel="stylesheet" href="index.css" />
+
+        <!-- Chart.js para Gráficos -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- idb: wrapper moderno para IndexedDB (UMD build) -->
+        <script src="https://cdn.jsdelivr.net/npm/idb@8/build/umd.js"></script>
+    </head>
+    <body
+        class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col"
+    >
+        <!-- Navbar -->
+        <nav class="bg-slate-800 text-white shadow-lg">
+            <div
+                class="container mx-auto px-4 py-4 flex justify-between items-center"
+            >
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-ticket text-yellow-400 text-2xl"></i>
+                    <h1 class="text-xl font-bold tracking-wide">Pulso</h1>
+                </div>
+                <!-- Botão Dark Mode -->
+                <button
+                    onclick="toggleTheme()"
+                    class="ml-auto mr-4 text-gray-300 hover:text-white transition"
+                    title="Alternar Tema"
+                >
+                    <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
+                </button>
+                <button
+                    onclick="openConfigModal()"
+                    class="mr-4 text-gray-300 hover:text-white transition"
+                    title="Configurar Cores"
+                >
+                    <i class="fa-solid fa-gear text-xl"></i>
+                </button>
+                <!-- Botão Sair (Oculto inicialmente) -->
+                <button
+                    id="nav-logout-btn"
+                    onclick="logout()"
+                    class="hidden text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition shadow"
+                >
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8 flex-grow">
+            <!-- VIEW: LOGIN (NOVO) -->
+            <section
+                id="view-login"
+                class="flex flex-col items-center justify-center h-[70vh] fade-in bg-gradient-to-br from-slate-200 to-gray-300 rounded-2xl shadow-inner my-4"
+            >
+                <div
+                    class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm text-center border-t-4 border-slate-800"
+                >
+                    <div class="mb-6">
+                        <div
+                            class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-slate-100 mb-4"
+                        >
+                            <i
+                                class="fa-solid fa-lock text-slate-800 text-2xl"
+                            ></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Acesso Restrito
+                        </h2>
+                        <p class="text-sm text-gray-500">
+                            Digite a senha para continuar
+                        </p>
+                    </div>
+                    <label for="login-password" class="sr-only">Senha</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="login-password"
+                            aria-describedby="login-error"
+                            aria-label="Senha"
+                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-center text-lg focus:border-slate-800 focus:ring-0 outline-none transition mb-4 pr-12"
+                            placeholder="Senha"
+                        />
+                        <button
+                            type="button"
+                            id="login-toggle-password"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            aria-label="Mostrar senha"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <p
+                        id="login-error"
+                        class="text-sm text-red-600 mt-1 hidden"
+                        role="alert"
+                        aria-live="polite"
+                    ></p>
+
+                    <button id="login-submit" class="w-full bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-900 transition shadow-lg">Entrar</button>
+                </div>
+            </section>
+
+            <!-- VIEW: GERENTE -->
+            <section id="view-manager" class="hidden fade-in space-y-8">
+                <!-- Cards de Resumo -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Estoque Central -->
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500"
+                    >
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p
+                                    class="text-sm text-gray-500 uppercase font-bold"
+                                >
+                                    Estoque Central
+                                </p>
+                                <button
+                                    onclick="openStockHistoryModal()"
+                                    class="text-xs text-blue-600 hover:text-blue-800 underline mb-1"
+                                >
+                                    <i class="fa-solid fa-list-ul mr-1"></i>Ver
+                                    Extrato
+                                </button>
+                                <!-- Conteúdo gerado via JS (renderStockInfo) -->
+                                <div
+                                    class="mt-2 space-y-2"
+                                    id="stock-info-container"
+                                ></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2 border-t pt-3">
+                            <select
+                                id="add-stock-type"
+                                class="border rounded px-2 py-1 text-xs bg-gray-50 focus:outline-none"
+                            >
+                                <!-- Gerado via JS -->
+                            </select>
+                            <input
+                                type="number"
+                                id="add-stock-input"
+                                placeholder="Qtd (+/-)"
+                                class="w-24 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button
+                                onclick="addToStock()"
+                                class="bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-900 transition"
+                                title="Adicionar ou Corrigir (Use negativo para remover)"
+                            >
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </div>
+                        <!-- Alerta de Estoque Baixo -->
+                        <div
+                            class="mt-2 flex items-center gap-2 text-xs text-gray-400 border-t pt-2"
+                        >
+                            <i class="fa-solid fa-bell text-yellow-400"></i>
+                            <span>Alerta abaixo de:</span>
+                            <input
+                                type="number"
+                                id="stock-alert-threshold"
+                                min="0"
+                                class="w-14 border rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                                oninput="updateStockAlertThreshold()"
+                                title="Mostrar alerta quando estoque atingir este valor"
+                            />
+                            <span>unid.</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Vendido (Geral) -->
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500"
+                    >
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <p
+                                    class="text-sm text-gray-500 uppercase font-bold"
+                                >
+                                    Caixa
+                                </p>
+                                <h2
+                                    class="text-3xl font-bold text-green-600 mt-1"
+                                    id="total-money-display"
+                                >
+                                    R$ 0,00
+                                </h2>
+                                <div class="cash-detail-row">
+                                    <span
+                                        >Bruto:
+                                        <span
+                                            id="total-gross-display"
+                                            class="font-semibold text-gray-500"
+                                            >R$ 0,00</span
+                                        ></span
+                                    >
+                                    <span class="withdrawn"
+                                        >Retirado:
+                                        <span id="total-withdrawn-display"
+                                            >R$ 0,00</span
+                                        >
+                                        <button
+                                            onclick="
+                                                openWithdrawalHistoryModal()
+                                            "
+                                            class="ml-1 text-red-400 hover:text-red-600 transition"
+                                            title="Ver histórico de retiradas"
+                                        >
+                                            <i
+                                                class="fa-solid fa-list-ul text-xs"
+                                            ></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <div
+                                    class="p-3 bg-green-100 rounded-full text-green-600"
+                                >
+                                    <i
+                                        class="fa-solid fa-sack-dollar text-xl"
+                                    ></i>
+                                </div>
+                                <button
+                                    onclick="openCashWithdrawalModal()"
+                                    class="text-xs bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-100 transition font-bold whitespace-nowrap"
+                                    title="Registrar retirada do caixa"
+                                >
+                                    <i
+                                        class="fa-solid fa-arrow-up-from-bracket mr-1"
+                                    ></i
+                                    >Retirada
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Configuração de Preço Rápida -->
+                        <div class="mt-4 pt-4 border-t flex items-center gap-2">
+                            <label class="text-xs text-gray-500 font-bold"
+                                >Preço Unit.: R$</label
+                            >
+                            <input
+                                type="number"
+                                id="config-price-input"
+                                step="0.50"
+                                class="w-20 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                            <button
+                                onclick="updatePrice()"
+                                class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-gray-700 transition"
+                                title="Salvar Novo Preço"
+                            >
+                                <i class="fa-solid fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Gestão de Funcionários -->
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500"
+                    >
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p
+                                    class="text-sm text-gray-500 uppercase font-bold"
+                                >
+                                    Novo Funcionário
+                                </p>
+                                <div class="mt-3 flex gap-2">
+                                    <input
+                                        type="text"
+                                        id="new-emp-name"
+                                        placeholder="Nome"
+                                        class="flex-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    />
+                                    <button
+                                        onclick="addEmployee()"
+                                        class="bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700 transition"
+                                    >
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="p-3 bg-purple-100 rounded-full text-purple-600"
+                            >
+                                <i class="fa-solid fa-users text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Distribuição -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3
+                        class="text-lg font-bold text-gray-700 mb-4 border-b pb-2"
+                    >
+                        <i class="fa-solid fa-hand-holding-hand mr-2"></i
+                        >Distribuir Pulseiras
+                    </h3>
+                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                        <div class="w-full md:w-1/4">
+                            <label
+                                class="block text-sm font-medium text-gray-600 mb-1"
+                                >Funcionário</label
+                            >
+                            <select
+                                id="distribute-select"
+                                class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50"
+                            >
+                                <!-- Opções geradas via JS -->
+                            </select>
+                        </div>
+                        <div class="w-full md:w-1/4">
+                            <label
+                                class="block text-sm font-medium text-gray-600 mb-1"
+                                >Tipo</label
+                            >
+                            <select
+                                id="distribute-type"
+                                class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50"
+                            >
+                                <!-- Gerado via JS -->
+                            </select>
+                        </div>
+                        <div class="w-full md:w-1/4">
+                            <label
+                                class="block text-sm font-medium text-gray-600 mb-1"
+                                >Quantidade a Entregar</label
+                            >
+                            <input
+                                type="number"
+                                id="distribute-amount"
+                                class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                placeholder="Ex: 50"
+                            />
+                        </div>
+                        <button
+                            onclick="openDistributeModal()"
+                            class="w-full md:w-auto bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition font-bold shadow-md"
+                        >
+                            Confirmar Entrega
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabela de Dashboard -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div
+                        class="px-6 py-4 border-b bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                    >
+                        <h3 class="text-lg font-bold text-gray-700">
+                            Painel de Controle - Funcionários
+                        </h3>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <label
+                                class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer bg-white px-3 py-1 rounded border hover:bg-gray-50 transition select-none"
+                            >
+                                <input
+                                    type="checkbox"
+                                    id="filter-scheduled"
+                                    onchange="renderManagerDashboard()"
+                                    class="rounded text-orange-500 focus:ring-orange-500"
+                                />
+                                <span class="font-medium"
+                                    ><i class="fa-regular fa-clock mr-1"></i
+                                    >Agendados</span
+                                >
+                            </label>
+                            <button
+                                onclick="printReport()"
+                                class="bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-900 transition shadow"
+                            >
+                                <i class="fa-solid fa-print mr-2"></i>Imprimir
+                                Fechamento
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider"
+                                >
+                                    <th class="px-4 md:px-6 py-3 font-semibold">
+                                        Nome
+                                    </th>
+                                    <th
+                                        class="px-4 md:px-6 py-3 font-semibold text-center"
+                                    >
+                                        Status / Pulseiras
+                                    </th>
+                                    <th
+                                        class="px-4 md:px-6 py-3 font-semibold text-center"
+                                    >
+                                        Ações
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                id="manager-table-body"
+                                class="divide-y divide-gray-200"
+                            >
+                                <!-- Linhas geradas via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Histórico de Transações (NOVO) -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div
+                        class="px-6 py-4 border-b bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4"
+                    >
+                        <h3 class="text-lg font-bold text-gray-700">
+                            <i class="fa-solid fa-clock-rotate-left mr-2"></i
+                            >Histórico de Acertos
+                        </h3>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button
+                                onclick="exportHistoryToCSV()"
+                                class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition shadow"
+                                title="Baixar em Excel"
+                            >
+                                <i class="fa-solid fa-file-excel mr-1"></i>Excel
+                            </button>
+                            <input
+                                type="text"
+                                id="history-search"
+                                oninput="searchHistory()"
+                                placeholder="Filtrar por nome..."
+                                class="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64"
+                            />
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-gray-100 shadow-sm">
+                                <tr
+                                    class="text-gray-600 text-xs uppercase tracking-wider"
+                                >
+                                    <th class="px-4 py-2">Data</th>
+                                    <th class="px-4 py-2">Funcionário</th>
+                                    <th class="px-4 py-2 text-center">
+                                        Qtd. Vendida
+                                    </th>
+                                    <th class="px-4 py-2 text-right">
+                                        Total (R$)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                id="history-table-body"
+                                class="divide-y divide-gray-200"
+                            >
+                                <!-- Logs gerados via JS -->
+                                <tr>
+                                    <td
+                                        colspan="4"
+                                        class="text-center py-4 text-gray-400 text-sm"
+                                    >
+                                        Nenhum registro encontrado.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Controles de Paginação -->
+                    <div
+                        class="px-6 py-3 border-t bg-gray-50 flex justify-between items-center text-sm"
+                    >
+                        <button
+                            id="btn-prev"
+                            onclick="changePage(-1)"
+                            class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                            Anterior
+                        </button>
+                        <span
+                            id="page-indicator"
+                            class="text-gray-600 font-medium"
+                            >Página 1 de 1</span
+                        >
+                        <button
+                            id="btn-next"
+                            onclick="changePage(1)"
+                            class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                            Próxima
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gráficos (oculto até ter dados) -->
+                <div
+                    id="charts-section"
+                    class="hidden grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
+                    <!-- Gráfico 1: Ranking de vendas por funcionário -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3
+                            class="text-base font-bold text-gray-700 mb-1 flex items-center gap-2"
+                        >
+                            <i
+                                class="fa-solid fa-ranking-star text-indigo-500"
+                            ></i>
+                            Ranking de Vendas
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">
+                            Total de pulseiras vendidas por funcionário
+                        </p>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-employees"></canvas>
+                        </div>
+                    </div>
+                    <!-- Gráfico 2: Evolução do caixa -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3
+                            class="text-base font-bold text-gray-700 mb-1 flex items-center gap-2"
+                        >
+                            <i
+                                class="fa-solid fa-chart-line text-green-500"
+                            ></i>
+                            Evolução do Caixa
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">
+                            Caixa acumulado ao longo dos acertos
+                        </p>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-cash"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relatórios por Período (NOVO) -->
+                <div
+                    class="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500"
+                >
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">
+                        <i class="fa-solid fa-calendar-days mr-2"></i>Relatórios
+                        por Período
+                    </h3>
+                    <div class="flex flex-wrap gap-4 items-end">
+                        <div class="w-full sm:w-auto">
+                            <label class="block text-sm text-gray-600 mb-1"
+                                >Data Início</label
+                            >
+                            <input
+                                type="date"
+                                id="report-start"
+                                class="w-full sm:w-auto border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            />
+                        </div>
+                        <div class="w-full sm:w-auto">
+                            <label class="block text-sm text-gray-600 mb-1"
+                                >Data Fim</label
+                            >
+                            <input
+                                type="date"
+                                id="report-end"
+                                class="w-full sm:w-auto border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            />
+                        </div>
+                        <button
+                            onclick="printPeriodReport()"
+                            class="w-full sm:w-auto bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition font-bold shadow-md"
+                        >
+                            <i class="fa-solid fa-print mr-2"></i>Gerar
+                            Relatório
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gestão de Dados (Backup) -->
+                <div
+                    class="bg-white p-6 rounded-xl shadow-md border-t-4 border-gray-600"
+                >
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">
+                        <i class="fa-solid fa-database mr-2"></i>Backup e
+                        Segurança
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Como os dados ficam salvos no seu navegador, faça
+                        backups regulares para não perder informações ao limpar
+                        o cache.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button
+                            onclick="exportData()"
+                            class="bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded hover:bg-blue-100 transition font-bold flex items-center"
+                        >
+                            <i class="fa-solid fa-download mr-2"></i>Baixar
+                            Backup
+                        </button>
+                        <label
+                            class="bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded hover:bg-gray-100 transition font-bold cursor-pointer flex items-center"
+                        >
+                            <i class="fa-solid fa-upload mr-2"></i>Restaurar
+                            Backup
+                            <input
+                                type="file"
+                                id="import-file"
+                                class="hidden"
+                                onchange="importData(this)"
+                                accept=".json"
+                            />
+                        </label>
+                        <button
+                            onclick="resetSystem()"
+                            class="text-red-500 hover:text-red-700 font-bold text-sm underline"
+                        >
+                            Zerar Tudo
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer
+            class="bg-white border-t py-4 text-center text-sm text-gray-500"
+        >
+            &copy; <span id="current-year">2026</span> Pulso Sistemas - Cleiton
+            Salazar Gomes
+        </footer>
+
+        <!-- Nosso Script JS -->
+        <script src="index.js"></script>
+
+        <!-- CONTAINER DE TOASTS -->
+        <div
+            id="toast-container"
+            class="fixed bottom-4 right-4 z-[150] flex flex-col gap-2 pointer-events-none max-w-xs w-full"
+        ></div>
+
+        <!-- MODAL DE CONFIRMAÇÃO CUSTOMIZADO -->
+        <div
+            id="confirm-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-60 hidden flex items-center justify-center z-[200] p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-100"
+            >
+                <div class="text-center mb-5">
+                    <div
+                        id="confirm-icon-wrap"
+                        class="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3"
+                    >
+                        <i id="confirm-icon-i" class="fa-solid text-xl"></i>
+                    </div>
+                    <h3
+                        id="confirm-modal-title"
+                        class="text-lg font-bold text-gray-800 mb-2"
+                    >
+                        Confirmação
+                    </h3>
+                    <p
+                        id="confirm-modal-message"
+                        class="text-sm text-gray-600 leading-relaxed"
+                    ></p>
+                </div>
+                <div class="flex gap-3">
+                    <button
+                        id="confirm-cancel-btn"
+                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-bold transition"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        id="confirm-ok-btn"
+                        class="flex-1 px-4 py-2 text-white rounded-lg font-bold shadow transition"
+                    >
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE HISTÓRICO DE RETIRADAS -->
+        <div
+            id="withdrawal-history-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform transition-all scale-100 max-h-[90vh] flex flex-col"
+            >
+                <!-- Cabeçalho -->
+                <div
+                    class="flex justify-between items-center px-6 py-4 border-b"
+                >
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i
+                            class="fa-solid fa-clock-rotate-left text-red-500 mr-2"
+                        ></i>
+                        Histórico de Retiradas
+                    </h3>
+                    <button
+                        onclick="closeWithdrawalHistoryModal()"
+                        class="text-gray-400 hover:text-gray-600 transition"
+                    >
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Tabela (rolável) -->
+                <div class="overflow-y-auto flex-grow">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-gray-100 shadow-sm">
+                            <tr
+                                class="text-gray-600 text-xs uppercase tracking-wider"
+                            >
+                                <th class="px-4 py-2">Data</th>
+                                <th class="px-4 py-2">Descrição</th>
+                                <th class="px-4 py-2 text-right">Valor</th>
+                                <th class="px-4 py-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            id="withdrawal-history-tbody"
+                            class="divide-y divide-gray-100"
+                        >
+                            <!-- Gerado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Rodapé com total + botão -->
+                <div
+                    class="px-6 py-4 border-t bg-gray-50 flex justify-between items-center"
+                >
+                    <div class="text-sm text-gray-600">
+                        Total retirado:
+                        <span
+                            id="withdrawal-total-display"
+                            class="font-bold text-red-600 text-base ml-1"
+                            >R$ 0,00</span
+                        >
+                    </div>
+                    <button
+                        onclick="closeWithdrawalHistoryModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-bold transition text-sm"
+                    >
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE RETIRADA DO CAIXA -->
+        <div
+            id="cash-withdrawal-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-100 border-t-4 border-red-500"
+            >
+                <div
+                    class="flex justify-between items-center mb-5 border-b pb-3"
+                >
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i
+                            class="fa-solid fa-arrow-up-from-bracket text-red-500 mr-2"
+                        ></i
+                        >Registrar Retirada
+                    </h3>
+                    <button
+                        onclick="closeCashWithdrawalModal()"
+                        class="text-gray-400 hover:text-gray-600 transition"
+                    >
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            Valor da Retirada (R$)
+                        </label>
+                        <input
+                            type="number"
+                            id="withdrawal-amount"
+                            step="0.01"
+                            min="0.01"
+                            placeholder="0,00"
+                            class="w-full border-2 rounded-lg px-3 py-2 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            Descrição
+                            <span class="text-gray-400 font-normal"
+                                >(opcional)</span
+                            >
+                        </label>
+                        <input
+                            type="text"
+                            id="withdrawal-desc"
+                            placeholder="Ex: Depósito banco, entrega ao dono..."
+                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+                        />
+                    </div>
+
+                    <div
+                        class="bg-red-50 border border-red-100 rounded-lg p-3 text-xs text-red-600"
+                    >
+                        <i class="fa-solid fa-circle-info mr-1"></i>
+                        Esta operação será registrada e deduzida do saldo do
+                        caixa.
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button
+                            onclick="closeCashWithdrawalModal()"
+                            class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-bold transition"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onclick="confirmCashWithdrawal()"
+                            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-lg transition"
+                        >
+                            <i class="fa-solid fa-check mr-1"></i>Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÁREA DE IMPRESSÃO (Oculta na tela, visível na impressão) -->
+        <div id="print-area" class="hidden p-8 font-serif">
+            <div class="text-center border-b-2 border-gray-800 pb-4 mb-6">
+                <h1 class="text-3xl font-bold uppercase" id="print-title">
+                    Relatório Pulso
+                </h1>
+                <p class="text-sm text-gray-600 mt-1">
+                    Sistema de Controle de Acesso e Caixa
+                </p>
+                <p class="text-sm mt-2">
+                    Data de Emissão:
+                    <span id="print-date" class="font-bold"></span>
+                </p>
+            </div>
+
+            <!-- Conteúdo Dinâmico (Injetado via JS) -->
+            <div id="print-content"></div>
+
+            <!-- Assinaturas -->
+            <div class="mt-16 flex justify-between gap-8">
+                <div
+                    class="flex-1 border-t border-black pt-2 text-center text-sm"
+                >
+                    Responsável (Gerente)
+                </div>
+                <div
+                    class="flex-1 border-t border-black pt-2 text-center text-sm"
+                >
+                    Testemunha / Conferente
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE ACERTO DE CONTAS -->
+        <div
+            id="settle-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all scale-100 max-h-[90vh] overflow-y-auto"
+            >
+                <div
+                    class="flex justify-between items-center mb-4 border-b pb-2"
+                >
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i
+                            class="fa-solid fa-hand-holding-dollar text-green-600 mr-2"
+                        ></i
+                        >Acerto de Contas
+                    </h3>
+                    <button
+                        onclick="closeSettleModal()"
+                        class="text-gray-400 hover:text-gray-600 transition"
+                    >
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div
+                        class="bg-blue-50 p-3 rounded-lg border border-blue-100"
+                    >
+                        <p class="text-sm text-gray-500 uppercase font-bold">
+                            Funcionário
+                        </p>
+                        <p
+                            class="text-lg font-bold text-gray-800"
+                            id="modal-emp-name"
+                        >
+                            Nome
+                        </p>
+                    </div>
+
+                    <!-- Grid de Devolução -->
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <!-- Venda -->
+                        <div
+                            class="bg-blue-50 p-2 rounded border border-blue-200"
+                        >
+                            <span
+                                class="block text-xs font-bold text-blue-700 mb-1"
+                                >VENDA</span
+                            >
+                            <span class="text-xs text-gray-500"
+                                >Pegou: <b id="modal-got-sales">0</b></span
+                            >
+                            <input
+                                type="number"
+                                id="modal-ret-sales"
+                                oninput="calculateModalTotals()"
+                                class="w-full mt-1 border rounded text-center font-bold text-gray-700"
+                                placeholder="Sobrou"
+                            />
+                        </div>
+
+                        <!-- Proprietário -->
+                        <div
+                            class="bg-yellow-50 p-2 rounded border border-yellow-200"
+                        >
+                            <span
+                                class="block text-xs font-bold text-yellow-700 mb-1"
+                                >PROP.</span
+                            >
+                            <span class="text-xs text-gray-500"
+                                >Pegou: <b id="modal-got-owner">0</b></span
+                            >
+                            <input
+                                type="number"
+                                id="modal-ret-owner"
+                                oninput="calculateModalTotals()"
+                                class="w-full mt-1 border rounded text-center font-bold text-gray-700"
+                                placeholder="Sobrou"
+                            />
+                        </div>
+
+                        <!-- Day User -->
+                        <div
+                            class="bg-purple-50 p-2 rounded border border-purple-200"
+                        >
+                            <span
+                                class="block text-xs font-bold text-purple-700 mb-1"
+                                >DAY U.</span
+                            >
+                            <span class="text-xs text-gray-500"
+                                >Pegou: <b id="modal-got-day">0</b></span
+                            >
+                            <input
+                                type="number"
+                                id="modal-ret-day"
+                                oninput="calculateModalTotals()"
+                                class="w-full mt-1 border rounded text-center font-bold text-gray-700"
+                                placeholder="Sobrou"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-gray-50 p-4 rounded-lg border border-gray-200"
+                    >
+                        <div
+                            class="flex justify-between text-sm text-gray-600 mb-1"
+                        >
+                            <span>Vendidas (Pagantes):</span>
+                            <span
+                                id="modal-sold-preview"
+                                class="font-bold text-gray-800"
+                                >0</span
+                            >
+                        </div>
+                        <div
+                            class="flex justify-between items-center border-t pt-2 mt-2"
+                        >
+                            <span class="font-bold text-gray-700"
+                                >TOTAL A PAGAR:</span
+                            >
+                            <span
+                                id="modal-pay-preview"
+                                class="text-2xl font-bold text-green-600"
+                                >R$ 0,00</span
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Opção de Agendamento (Dinâmico) -->
+                    <div
+                        id="modal-settle-schedule-option"
+                        class="hidden flex items-center gap-2 text-sm text-gray-700 bg-orange-50 p-3 rounded border border-orange-200"
+                    >
+                        <input
+                            type="checkbox"
+                            id="modal-settle-schedule-check"
+                            class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500"
+                        />
+                        <label
+                            for="modal-settle-schedule-check"
+                            class="font-medium"
+                            >Marcar agendamento como concluído</label
+                        >
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button
+                            onclick="closeSettleModal()"
+                            class="flex-1 px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-bold transition"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onclick="confirmSettle()"
+                            class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold shadow-lg transition transform active:scale-95"
+                        >
+                            <i class="fa-solid fa-check mr-2"></i>Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CONFIRMAÇÃO DE ENTREGA (NOVO) -->
+        <div
+            id="distribute-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-100 border-t-4 border-indigo-600"
+            >
+                <div class="text-center mb-6">
+                    <div
+                        class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-4"
+                    >
+                        <i
+                            class="fa-solid fa-hand-holding-hand text-indigo-600 text-xl"
+                        ></i>
+                    </div>
+                    <h3 class="text-lg leading-6 font-bold text-gray-900">
+                        Confirmar Entrega?
+                    </h3>
+                    <div
+                        class="mt-2 px-2 py-3 bg-gray-50 rounded-lg border border-gray-200"
+                    >
+                        <p class="text-sm text-gray-500">Você vai entregar:</p>
+                        <p class="text-2xl font-bold text-indigo-600 my-1">
+                            <span id="modal-dist-amount">0</span>
+                            <span
+                                id="modal-dist-type-label"
+                                class="text-sm uppercase"
+                            ></span>
+                        </p>
+                        <p class="text-sm text-gray-500">Para o funcionário:</p>
+                        <p class="font-bold text-gray-800" id="modal-dist-name">
+                            ...
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">
+                        Essa ação debitará do Estoque Central.
+                    </p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button
+                        onclick="closeDistributeModal()"
+                        class="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onclick="confirmDistribute()"
+                        class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold shadow-lg transition"
+                    >
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CONFIGURAÇÃO DE CORES -->
+        <div
+            id="config-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg transform transition-all scale-100 max-h-[90vh] overflow-y-auto"
+            >
+                <div
+                    class="flex justify-between items-center mb-4 border-b pb-2"
+                >
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fa-solid fa-palette text-gray-600 mr-2"></i
+                        >Configurar Pulseiras
+                    </h3>
+                    <button
+                        onclick="closeConfigModal()"
+                        class="text-gray-400 hover:text-gray-600 transition"
+                    >
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-500">
+                        Personalize os nomes e cores das pulseiras.
+                    </p>
+
+                    <!-- Configuração Dinâmica -->
+                    <div id="config-rows" class="space-y-3">
+                        <!-- Linhas geradas via JS -->
+                    </div>
+
+                    <div class="flex gap-3 mt-6 pt-4 border-t">
+                        <button
+                            onclick="closeConfigModal()"
+                            class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-bold transition"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onclick="saveConfig()"
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold shadow-lg transition"
+                        >
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE HISTÓRICO DE ESTOQUE -->
+        <div
+            id="stock-history-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-4 md:p-6 w-full max-w-4xl transform transition-all scale-100 h-[90vh] flex flex-col"
+            >
+                <div
+                    class="flex justify-between items-center mb-4 border-b pb-2"
+                >
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fa-solid fa-list-ul text-blue-600 mr-2"></i
+                        >Extrato de Movimentação
+                    </h3>
+                    <button
+                        onclick="closeStockHistoryModal()"
+                        class="text-gray-400 hover:text-gray-600 transition"
+                    >
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Filtros de Data -->
+                <div
+                    class="flex flex-wrap gap-3 items-end bg-gray-50 p-3 rounded-lg mb-4 border"
+                >
+                    <div class="w-full sm:w-auto">
+                        <label class="block text-xs text-gray-600 mb-1"
+                            >Data Início</label
+                        >
+                        <input
+                            type="date"
+                            id="stock-history-start"
+                            class="w-full sm:w-auto border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div class="w-full sm:w-auto">
+                        <label class="block text-xs text-gray-600 mb-1"
+                            >Data Fim</label
+                        >
+                        <input
+                            type="date"
+                            id="stock-history-end"
+                            class="w-full sm:w-auto border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <button
+                        onclick="renderStockHistoryTable()"
+                        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition font-bold text-sm"
+                    >
+                        <i class="fa-solid fa-filter mr-1"></i>Filtrar
+                    </button>
+                    <button
+                        onclick="clearStockHistoryFilter()"
+                        class="text-gray-500 hover:text-gray-700 text-sm underline"
+                    >
+                        Limpar
+                    </button>
+                </div>
+
+                <div class="flex-grow overflow-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-gray-100 shadow-sm">
+                            <tr
+                                class="text-gray-600 text-xs uppercase tracking-wider"
+                            >
+                                <th class="px-4 py-2">Data</th>
+                                <th class="px-4 py-2">Item</th>
+                                <th class="px-4 py-2">Ação</th>
+                                <th class="px-4 py-2">Detalhes</th>
+                                <th class="px-4 py-2 text-right">Qtd.</th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            id="stock-history-table-body"
+                            class="divide-y divide-gray-200"
+                        >
+                            <!-- Gerado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 pt-4 border-t flex justify-end gap-3">
+                    <button
+                        onclick="printStockHistory()"
+                        class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-900 font-bold shadow-md transition"
+                    >
+                        <i class="fa-solid fa-print mr-2"></i>Imprimir
+                    </button>
+                    <button
+                        onclick="closeStockHistoryModal()"
+                        class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-bold transition"
+                    >
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE AGENDAMENTO (NOVO) -->
+        <div
+            id="schedule-modal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300 p-4"
+        >
+            <div
+                class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-100"
+            >
+                <div class="text-center mb-4">
+                    <div
+                        class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-3"
+                    >
+                        <i
+                            class="fa-solid fa-calendar-clock text-orange-600 text-xl"
+                        ></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">
+                        Agendar Acerto
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        Defina quando
+                        <span
+                            id="modal-sched-name"
+                            class="font-bold text-gray-800"
+                        ></span>
+                        deve comparecer.
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                        >Data e Hora</label
+                    >
+                    <input
+                        type="datetime-local"
+                        id="schedule-datetime"
+                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
+                    />
+                </div>
+
+                <div class="flex gap-3">
+                    <button
+                        onclick="closeScheduleModal()"
+                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-bold transition"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onclick="saveSchedule()"
+                        class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-bold shadow-lg transition"
+                    >
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
