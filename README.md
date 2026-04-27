@@ -1,6 +1,6 @@
-# Meu Primeiro Projeto Web
+# Meu Primeiro Projeto Web - Pulso
 
-Este é um projeto simples de gestão de pulseiras, contendo HTML, CSS e JavaScript.
+Este é um projeto simples de controle de estoque de pulseiras, contendo HTML, CSS e JavaScript.
 
 ## Arquivos
 
