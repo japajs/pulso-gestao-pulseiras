@@ -1,6 +1,6 @@
 # Meu Primeiro Projeto Web
 
-Este é um projeto simples de página web, contendo HTML, CSS e JavaScript.
+Este é um projeto simples de gestão de pulseiras, contendo HTML, CSS e JavaScript.
 
 ## Arquivos
 
@@ -14,4 +14,4 @@ Para ver o projeto rodando, basta abrir o link logo abaixo no seu navegador de p
 
 ## Autor
 
-[japajs](https://salazarsuporte.netlify.app/)
+[PULSO](https://salazarsuporte.netlify.app/)
