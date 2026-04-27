@@ -1,17 +1,23 @@
-# Meu Primeiro Projeto Web - Pulso
+Pulso – Gestão de Pulseiras
+Sistema web de controle de estoque de pulseiras com autenticação por senha.
+Desenvolvido com HTML, CSS e JavaScript puro.
 
-Este é um projeto simples de controle de estoque de pulseiras, contendo HTML, CSS e JavaScript.
+Funcionalidades
+.Cadastro e controle de estoque de pulseiras
+.Autenticação por senha para acesso ao sistema
 
-## Arquivos
+Tecnologias
+.HTML5
+.CSS3
+.JavaScript (Vanilla)
 
-- `índice.html`: A estrutura da página.
-- `índice.css`: O estilo da página.
-- `índice.js`: A interatividade da página.
+Como visualizar
+Acesse a demo online: https://salazarsuporte.netlify.app
+Arquivos
 
-## Como visualizar
+index.html — Estrutura da página
+index.css — Estilo da página
+index.js — Interatividade da página
 
-Para ver o projeto rodando, basta abrir o link logo abaixo no seu navegador de preferência, com a senha 1234.
-
-## Autor
-
-[PULSO](https://salazarsuporte.netlify.app/)
+Autor
+Cleiton Salazar
