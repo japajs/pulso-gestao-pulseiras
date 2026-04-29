@@ -1118,6 +1118,11 @@ function renderManagerDashboard() {
     );
   }
 
+  // Limpa o corpo da tabela antes de renderizar para evitar duplicação ou resíduos
+  while (tbody.firstChild) {
+    tbody.removeChild(tbody.firstChild);
+  }
+
   // Ordena os funcionários:
   // 1. Agendados primeiro, ordenados pelo timestamp do agendamento (mais próximo primeiro)
   // 2. Depois, não agendados, ordenados alfabeticamente pelo nome
@@ -1798,9 +1803,18 @@ function importData(input) {
   reader.onload = async function (e) {
     try {
       const data = JSON.parse(e.target.result);
-      // Validação básica para garantir que é um arquivo de backup válido
+      // Validação de estrutura e tipos para evitar corrupção de estado ou injeção
       if (data.centralStock !== undefined && Array.isArray(data.employees) && data.bandConfig) {
-        appState = data; // Substitui o estado atual
+        // Sanitização básica: Reconstrói o objeto com os campos esperados apenas
+        appState.centralStock = Number(data.centralStock) || 0;
+        appState.totalCash = Number(data.totalCash) || 0;
+        appState.employees = data.employees.map(emp => ({
+          ...emp,
+          name: escapeHtml(emp.name) // Garante que nomes importados sejam tratados
+        }));
+        appState.history = Array.isArray(data.history) ? data.history : [];
+        appState.bandConfig = data.bandConfig;
+
         // Após carregar, aplicar migração de timestamps se necessário (para compatibilidade)
         appState.employees.forEach((emp) => {
             if (emp && emp.scheduleDate && emp.scheduleTs === undefined) {
@@ -2530,3 +2544,7 @@ function updateStockAlertThreshold() {
 
 // Iniciar App: Adicionamos um listener para garantir que o DOM carregou antes de rodar
 document.addEventListener("DOMContentLoaded", init);
+
+
+
+
