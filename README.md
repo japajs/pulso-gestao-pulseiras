@@ -2,6 +2,14 @@
 
 Um aplicativo web para gerenciar e organizar pulseiras de forma simples e intuitiva.
 
+## 🌐 Acesse Agora
+
+**[Abra a aplicação agora](https://salazarsuporte.netlify.app/)**
+
+**Senha de acesso:** `1234`
+
+*⚠️ Nota de segurança: Em produção, nunca exponha senhas em repositórios públicos. Esta é apenas uma demonstração.*
+
 ## 📋 Sobre o Projeto
 
 **Pulso** é uma solução desenvolvida para facilitar o controle e organização de pulseiras, permitindo:
@@ -57,14 +65,6 @@ pulso-gestao-pulseiras/
 - 📱 Compatível com dispositivos móveis
 - ⚡ Performance otimizada
 - 🔐 Autenticação por senha
-
-## 🔐 Autenticação
-
-Este projeto inclui autenticação básica para fins de demonstração.
-
-- **Senha de acesso:** `1234`
-
-*⚠️ Nota de segurança: Em produção, nunca exponha senhas em repositórios públicos. Esta é apenas uma demonstração.*
 
 ## 🤝 Contribuindo
 
