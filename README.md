@@ -1,36 +1,78 @@
-Pulso – Gestão de Pulseiras
+# 🎯 Pulso - Gestão de Pulseiras
 
-Sistema web de controle de estoque de pulseiras com autenticação por senha.
-Desenvolvido com HTML, CSS, JavaScript e com auxilio de IA. 
+Um aplicativo web para gerenciar e organizar sua coleção de pulseiras de forma simples e intuitiva.
 
-Funcionalidades
+## 📋 Sobre o Projeto
 
-Cadastro e controle de estoque de pulseiras
-Autenticação por senha para acesso ao sistema. 
+**Pulso** é uma solução desenvolvida para facilitar o controle e organização de pulseiras, permitindo:
+- Catalogar pulseiras com detalhes
+- Organizar por categorias e tipos
+- Gerenciar inventário
+- Visualizar coleção completa
 
-Tecnologias
+## 🚀 Tecnologias
 
-HTML5
+- **JavaScript** (57%) - Lógica da aplicação
+- **HTML** (40.1%) - Estrutura das páginas
+- **CSS** (2.9%) - Estilos e design
 
-CSS3
+## 📦 Requisitos
 
-JavaScript (Vanilla)
+- Navegador web moderno (Chrome, Firefox, Safari, Edge)
+- Nenhuma dependência externa necessária
 
-Cursor (editor com IA) — auxílio no desenvolvimento
+## 🔧 Como Usar
 
-Como visualizar
+1. Clone o repositório:
+```bash
+git clone https://github.com/japajs/pulso-gestao-pulseiras.git
+```
 
-Acesse a demo online: https://salazarsuporte.netlify.app
+2. Abra o arquivo `index.html` no seu navegador:
+```bash
+cd pulso-gestao-pulseiras
+open index.html
+```
 
-Acesso: senha 1234
+Ou use um servidor local:
+```bash
+python -m http.server 8000
+# Acesse http://localhost:8000
+```
 
-Arquivos
+## 📁 Estrutura do Projeto
 
-index.html — Estrutura da página
+```
+pulso-gestao-pulseiras/
+├── index.html      # Página principal
+├── index.css       # Estilos
+├── index.js        # Lógica da aplicação
+└── README.md       # Este arquivo
+```
 
-index.css — Estilo da página
+## 💡 Funcionalidades Principais
 
-index.js — Interatividade da página
+- ✨ Interface simples e intuitiva
+- 🎨 Design responsivo
+- 📱 Compatível com dispositivos móveis
+- ⚡ Performance otimizada
+- 🔐 Autenticação por senha
 
-Autor
-Cleiton Salazar
+## 🤝 Contribuindo
+
+Sugestões e melhorias são bem-vindas! Sinta-se livre para:
+- Abrir issues com sugestões
+- Fazer pull requests com melhorias
+- Reportar bugs
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
+## 👤 Autor
+
+Desenvolvido por [@japajs](https://github.com/japajs)
+
+---
+
+**Última atualização:** 29 de Abril de 2026
