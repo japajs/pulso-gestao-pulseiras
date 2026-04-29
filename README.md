@@ -1,12 +1,12 @@
 # 🎯 Pulso - Gestão de Pulseiras
 
-Um aplicativo web para gerenciar e  organizar pulseiras de forma simples e intuitiva.
+Um aplicativo web para gerenciar e organizar pulseiras de forma simples e intuitiva.
 
 ## 📋 Sobre o Projeto
 
 **Pulso** é uma solução desenvolvida para facilitar o controle e organização de pulseiras, permitindo:
 - Catalogar pulseiras com detalhes
-- Organizar por categorias e tipos
+- Organizar por categorias, cores e tipos
 - Gerenciar inventário
 - Distribuir entre os funcionários
 
@@ -60,7 +60,7 @@ pulso-gestao-pulseiras/
 
 ## 🔐 Autenticação
 
-Este projeto inclui autenticação básica para fins de demonstração educacional.
+Este projeto inclui autenticação básica para fins de demonstração.
 
 - **Senha de acesso:** `1234`
 
