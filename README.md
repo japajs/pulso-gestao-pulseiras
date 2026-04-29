@@ -58,6 +58,14 @@ pulso-gestao-pulseiras/
 - ⚡ Performance otimizada
 - 🔐 Autenticação por senha
 
+## 🔐 Autenticação
+
+Este projeto inclui autenticação básica para fins de demonstração educacional.
+
+- **Senha de acesso:** `1234`
+
+*⚠️ Nota de segurança: Em produção, nunca exponha senhas em repositórios públicos. Esta é apenas uma demonstração.*
+
 ## 🤝 Contribuindo
 
 Sugestões e melhorias são bem-vindas! Sinta-se livre para:
