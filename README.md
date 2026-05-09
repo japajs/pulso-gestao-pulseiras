@@ -4,7 +4,7 @@ Um aplicativo web para gerenciar e organizar pulseiras de forma simples e intuit
 
 ## 🌐 Acesse Agora
 
-**[Abra a aplicação agora](https://salazarsuporte.netlify.app/)**
+**[Abra a aplicação agora](https://pulsoestoque.netlify.app/)**
 
 **Senha de acesso:** `1234`
 
